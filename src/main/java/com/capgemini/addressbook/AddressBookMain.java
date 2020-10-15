@@ -52,14 +52,14 @@ public class AddressBookMain {
 			       System.out.println("Editing done");
 			       break;
 			case 3:showAllAddressBooksName();
-			   	   System.out.println("Enter the name of particular address book to add person details");
+			   	   System.out.println("Enter the name of particular address book to delete person details");
 			       String addressBookName3=s.next();
 			       AddressBook addressbook3=AddressBook.hm.get(addressBookName3);
 			       addressbook3.deleteContact();
 			       System.out.println("deletion done");
 			       break;
 			case 4:showAllAddressBooksName();
-		   	       System.out.println("Enter the name of particular address book to add person details");
+		   	       System.out.println("Enter the name of particular address book to show all contact details");
 		           String addressBookName4=s.next();
 		           AddressBook addressbook4=AddressBook.hm.get(addressBookName4);
 		           addressbook4.showContacts();

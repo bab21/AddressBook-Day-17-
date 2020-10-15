@@ -37,10 +37,10 @@ public class Contact {
 	public String toString() {
 		return firstName+","+lastName+","+city+","+state+","+zip+","+email+","+phoneNumber;
 	}
-	public void setFirst_Name(String first_name) {
+	public void setFirstName(String first_name) {
 		this.firstName=first_name;
 	}
-	public String getFirst_Name() {
+	public String getFirstName() {
 		return this.firstName;
 	}
 	public void setLast_Name(String last_name) {
