@@ -50,10 +50,19 @@ public class AddressBookServiceTest {
 //		List<Contact> contactList=addressBook.getContactInDateRange(startDate, endDate);
 //		assertEquals(2,contactList.size());
 //	}
+//	@Test
+//	public void givenCity_WhenContactDataRetrieved_ShouldMatch() {
+//		AddressBook addressBook=new AddressBook();
+//		List<Contact> contactList=addressBook.getContactsByCity("Patna");
+//		assertEquals(2,contactList.size());
+//	}
 	@Test
-	public void givenCity_WhenContactDataRetrieved_ShouldMatch() {
+	public void givenContact_WhenAdded_ShouldShowSizeIncrease() {
 		AddressBook addressBook=new AddressBook();
-		List<Contact> contactList=addressBook.getContactsByCity("Patna");
-		assertEquals(2,contactList.size());
+		int sizeBeforeAdd=addressBook.readContacts().size();
+		LocalDate dateAdded=LocalDate.now();
+		addressBook.addContact("Alisha", "Sinha", "Indrapuri", "Patna", "Bihar", 800024, 7766554433L, "alisha@gmail", Contact.ContactType.Friend, 6, dateAdded);
+		int sizeAfterAdd=addressBook.readContacts().size();
+		assertTrue(sizeBeforeAdd==sizeAfterAdd-1);
 	}
 }

@@ -50,15 +50,16 @@ public class AddressBook {
 		addressBookDBService=AddressBookDBService.getInstance();
 	}
 
-	public void addContact(String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,Contact.ContactType contactType,int addressBookId) {
+	public void addContact(String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,Contact.ContactType contactType,int addressBookId,LocalDate dateAdded) {
 		
-		Contact contact=new Contact(firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
+		Contact contact=new Contact(firstName,lastName,address,city,state,zip,phoneNumber,email,contactType,dateAdded);
 		
 		if(!addressBookDBService.checkContactExits(contact)) {
 			addressBookDBService.addContact(contact,addressBookId);
 		}
 		else {
 			System.out.println("Contact already exits");
+			return;
 		}
 	
 		if(cityToContact.containsKey(city)) {

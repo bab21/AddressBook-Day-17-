@@ -47,6 +47,12 @@ public class Contact {
 		this.dateAdded=dateAdded;
     }
 	
+	public Contact(String firstName, String lastName, String address, String city, String state, int zip,
+			long phoneNumber, String email, ContactType contactType, LocalDate dateAdded) {
+		this(firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
+		this.dateAdded=dateAdded;
+	}
+
 	public boolean equals(Object object) {
 		if (object == this) { 
             return true; 
@@ -124,5 +130,9 @@ public class Contact {
 	}
 	public ContactType getContactType() {
 		return this.contactType;
+	}
+
+	public LocalDate getDateAdded() {
+		return this.dateAdded;
 	}
 }

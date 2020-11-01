@@ -117,10 +117,11 @@ public class AddressBookDBService {
 	
 
 	public void addContact(Contact contact,int addressBookId) {
-		String sql=String.format("insert into contact(firstName,lastName,address,city,state,zip,phoneNumber,email,addressBookId,contactType)+"
-				+ "values ('%s','%s','%s','%s','%s','%d','%d','%s','%d','%s')",
+		String sql=String.format("insert into contact(firstName,lastName,address,city,state,zip,phoneNumber,email,address_book_id,contact_type,date_added)"
+				+ " values ('%s','%s','%s','%s','%s','%d','%d','%s','%d','%s','%s')",
 				contact.getFirstName(),contact.getLast_Name(),contact.getAddress(),
-				contact.getCity(),contact.getState(),contact.getZip(),contact.getPhoneNumber(),contact.getEmail(),addressBookId,contact.getContactType().toString());
+				contact.getCity(),contact.getState(),contact.getZip(),contact.getPhoneNumber(),
+				contact.getEmail(),addressBookId,contact.getContactType().toString(),Date.valueOf(contact.getDateAdded()));
 		
 		try(Connection connection =this.getConnection()){
 			Statement statement=connection.createStatement();
