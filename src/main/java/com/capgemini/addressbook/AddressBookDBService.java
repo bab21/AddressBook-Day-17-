@@ -248,4 +248,9 @@ public class AddressBookDBService {
 		return queryDatabase(sql);
 	}
 
+	public List<Contact> getContactByCity(String city) {
+		String sql=String.format("select * from contact where city='%s'",city);
+		return queryDatabase(sql);
+	}
+
 }

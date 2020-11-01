@@ -168,5 +168,8 @@ public class AddressBook {
 				.findFirst()
 				.orElse(null);
 	}
+	public List<Contact> getContactsByCity(String city) {
+		return addressBookDBService.getContactByCity(city);
+	}
 	
 }

@@ -42,12 +42,18 @@ public class AddressBookServiceTest {
 //		assertTrue(contactList.get(0).getCity().equals("Kolkata"));
 //	}
 	
+//	@Test
+//	public void givenDateRange_WhenContactDataRetrieved_ShouldMatch(){
+//		AddressBook addressBook=new AddressBook();
+//		LocalDate startDate=LocalDate.of(2018, 07, 01);
+//		LocalDate endDate=LocalDate.now();
+//		List<Contact> contactList=addressBook.getContactInDateRange(startDate, endDate);
+//		assertEquals(2,contactList.size());
+//	}
 	@Test
-	public void givenDateRange_WhenContactDataRetrieved_ShouldMatch(){
+	public void givenCity_WhenContactDataRetrieved_ShouldMatch() {
 		AddressBook addressBook=new AddressBook();
-		LocalDate startDate=LocalDate.of(2018, 07, 01);
-		LocalDate endDate=LocalDate.now();
-		List<Contact> contactList=addressBook.getContactInDateRange(startDate, endDate);
+		List<Contact> contactList=addressBook.getContactsByCity("Patna");
 		assertEquals(2,contactList.size());
 	}
 }
