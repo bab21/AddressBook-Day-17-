@@ -75,29 +75,7 @@ public class AddressBookDBService {
 	}
 	public List<Contact> getContactData(String name) {
 		String sql=String.format("select * from contact where firstName='%s'",name);
-		List<Contact> contactList=new ArrayList<>();
-		
-		try(Connection connection=this.getConnection()){
-			Statement statement=connection.createStatement();
-			ResultSet resultSet=statement.executeQuery(sql);
-			while(resultSet.next()) {
-				int id=resultSet.getInt("id");
-				String firstName=resultSet.getString("firstName");
-				String lastName=resultSet.getString("lastName");
-			    String address=resultSet.getString("address");
-				String city=resultSet.getString("city");
-				String state=resultSet.getString("state");
-			    int zip=resultSet.getInt("zip");
-				long phoneNumber=resultSet.getLong("phoneNumber");;
-				String email=resultSet.getString("email");
-				ContactType contactType=ContactType.valueOf(resultSet.getString("contact_type"));
-				Contact contact=new Contact(id,firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
-				contactList.add(contact);
-			}
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
-		return contactList;
+		return queryDatabase(sql);
 	}
 
 	
@@ -133,10 +111,32 @@ public class AddressBookDBService {
 		}
 		return false;
 	}
-	
-	
-	public void updateContactWithLastName(String firstName, String lastName) throws SQLException {
-		String sql=String.format("update contact set lastName='%s' where firstName='%s'",lastName,firstName);
+	public List<Contact> queryDatabase(String sql) {
+        List<Contact> contactList=new ArrayList<>();
+		
+		try(Connection connection=this.getConnection()){
+			Statement statement=connection.createStatement();
+			ResultSet resultSet=statement.executeQuery(sql);
+			while(resultSet.next()) {
+				int id=resultSet.getInt("id");
+				String firstName=resultSet.getString("firstName");
+				String lastName=resultSet.getString("lastName");
+			    String address=resultSet.getString("address");
+				String city=resultSet.getString("city");
+				String state=resultSet.getString("state");
+			    int zip=resultSet.getInt("zip");
+				long phoneNumber=resultSet.getLong("phoneNumber");;
+				String email=resultSet.getString("email");
+				ContactType contactType=ContactType.valueOf(resultSet.getString("contact_type"));
+				Contact contact=new Contact(id,firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
+				contactList.add(contact);
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return contactList;
+	}
+	public void updateDatabase(String sql) {
 		try(Connection connection=this.getConnection()){
 			Statement statement=connection.createStatement();
 			statement.executeUpdate(sql);
@@ -144,65 +144,82 @@ public class AddressBookDBService {
 		catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	public void updateContactWithLastName(String firstName, String lastName) throws SQLException {
+		String sql=String.format("update contact set lastName='%s' where firstName='%s'",lastName,firstName);
+		updateDatabase(sql);
 		
 	}
 
 	public void updateContactWithAddress(String firstName, String address) {
-		
+		String sql=String.format("update contact set address='%s' where firstName='%s'",address,firstName);
+		updateDatabase(sql);
 		
 	}
 
 	public void updateContactWithCity(String firstName, String city) {
-		// TODO Auto-generated method stub
-		
+		String sql=String.format("update contact set city='%s' where firstName='%s'",city,firstName);
+		updateDatabase(sql);
 	}
 
 	public void updateContactWithState(String firstName, String state) {
-		// TODO Auto-generated method stub
-		
+		String sql=String.format("update contact set state='%s' where firstName='%s'",state,firstName);
+		updateDatabase(sql);
 	}
 
 	public void updateContactWithZip(String firstName, int zip) {
-		// TODO Auto-generated method stub
-		
+		String sql=String.format("update contact set zip='%s' where firstName='%s'",zip,firstName);
+		updateDatabase(sql);
 	}
 
 	public void updateContactWithPhoneNumber(String firstName, long phoneNumber) {
-		// TODO Auto-generated method stub
-		
+		String sql=String.format("update contact set phoneNumber='%s' where firstName='%s'",phoneNumber,firstName);
+		updateDatabase(sql);
 	}
 
 	public void updateContactWithEmail(String firstName, String email) {
-		// TODO Auto-generated method stub
-		
+		String sql=String.format("update contact set email='%s' where firstName='%s'",email,firstName);
+		updateDatabase(sql);
 	}
 
 	public void deleteContact(String firstName) {
-		// TODO Auto-generated method stub
+		String sql=String.format("delete from contact where firstName='%s'",firstName);
+		try(Connection connection=this.getConnection()){
+			Statement statement=connection.createStatement();
+			statement.executeUpdate(sql);
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public List<Contact> SortedContactByFirstName(int addressBookId) {
+		String sql=String.format("select * from contact "
+				+ "where address_book_id='%d'"
+				+ "order by firstName", addressBookId);
+		return queryDatabase(sql);
 		
 	}
 
-	public List<Contact> SortedContactByFirstName(String addressBookName) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Contact> getSortedContactByCity(int addressBookId) {
+		String sql=String.format("select * from contact "
+				+ "where address_book_id='%d'"
+				+ "order by city", addressBookId);
+		return queryDatabase(sql);
 	}
 
-	public List<Contact> getSortedContactByCity(String addressBookName) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Contact> getSortedContactByState(int addressBookId) {
+		String sql=String.format("select * from contact "
+				+ "where address_book_id='%d'"
+				+ "order by state", addressBookId);
+		return queryDatabase(sql);
 	}
 
-	public List<Contact> getSortedContactByState(String addressBookName) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Contact> getSortedContactByZip(int addressBookId) {
+		String sql=String.format("select * from contact "
+				+ "where address_book_id='%d'"
+				+ "order by zip", addressBookId);
+		return queryDatabase(sql);
 	}
-
-	public List<Contact> getSortedContactByZip(String addressBookName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
-	
 
 }

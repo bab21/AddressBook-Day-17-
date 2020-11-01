@@ -133,16 +133,6 @@ public class AddressBook {
 		}	
 	}
 	public void deleteContact(String firstName) {
-		int index=0;
-		int i,n;
-		n=contactList.size();
-		
-		for(i=0;i<n;i++) {
-			if(contactList.get(i).getFirstName().equals(firstName))
-				index=i;
-			
-		}
-		contactList.remove(index);
 		addressBookDBService.deleteContact(firstName);
 		return ;
 	}
@@ -150,17 +140,17 @@ public class AddressBook {
 		this.contactList=addressBookDBService.readContacts();
 		return contactList;
 	}
-	public List<Contact> getSortedContactListByName(String addressBookName) {
-		 return addressBookDBService.SortedContactByFirstName(addressBookName);
+	public List<Contact> getSortedContactListByName(int addressBookId) {
+		 return addressBookDBService.SortedContactByFirstName(addressBookId);
 	}
-	public List<Contact> getSortedContactListByCity(String addressBookName){
-		return addressBookDBService.getSortedContactByCity(addressBookName);
+	public List<Contact> getSortedContactListByCity(int addressBookId){
+		return addressBookDBService.getSortedContactByCity(addressBookId);
 	}
-	public List<Contact> getSortedContactListByState(String AddressBookName){
-		return addressBookDBService.getSortedContactByState(addressBookName);
+	public List<Contact> getSortedContactListByState(int addressBookId){
+		return addressBookDBService.getSortedContactByState(addressBookId);
 	}
-	public List<Contact> getSortedContactListByZip(String addressBookName) {
-		return addressBookDBService.getSortedContactByZip(addressBookName);
+	public List<Contact> getSortedContactListByZip(int addressBookId) {
+		return addressBookDBService.getSortedContactByZip(addressBookId);
 
 	}
 	public boolean checkAddressBookDataInSyncWithDB(String firstName)  {
