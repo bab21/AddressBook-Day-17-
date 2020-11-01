@@ -50,8 +50,8 @@ public class Contact {
             return false; 
         } 
         Contact contact = (Contact) object; 
-        if(this.id==contact.id)
-        	return true;
+        if(this.firstName.equals(contact.firstName) && this.lastName.equals(contact.lastName))
+        		return true;
         else return false;		
 	}
 	

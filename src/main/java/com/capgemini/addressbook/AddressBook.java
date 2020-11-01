@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.stream.IntStream;
 
 import com.capgemini.addressbook.Contact.ContactType;
@@ -24,7 +25,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 
 public class AddressBook {
-	private ArrayList<Contact> contactList;
+	private List<Contact> contactList;
 	private String addressBookName;
 	private AddressBookType addressBookType;
 	
@@ -78,18 +79,11 @@ public class AddressBook {
 		}
 		
 	}
-	public void editContact(String firstName) {
+	public void editContact(String firstName) throws SQLException {
 		Scanner s=new Scanner(System.in);
 		int index=0;
 		int i,n;
 		
-		n=contactList.size();
-		
-		for(i=0;i<n;i++) {
-			if(contactList.get(i).getFirstName().equals(firstName))
-				index=i;
-			
-		}
 		while(true) {
 			System.out.println("Choose Any One");
 			System.out.println("1.Edit Last name");
@@ -108,7 +102,6 @@ public class AddressBook {
 			switch(choice) {
 				case 1:System.out.println("Enter last name for editing");
 					   String lastName=s.next();
-					   contactList.get(index).setLast_Name(lastName);
 					   addressBookDBService.updateContactWithLastName(firstName,lastName);
 					   break;
 				case 2:System.out.println("Enter Address for editing");
@@ -118,27 +111,22 @@ public class AddressBook {
 				   	   break;
 				case 3:System.out.println("Enter city for editing");
 				       String city=s.next();
-				       contactList.get(index).setCity(city);
 				       addressBookDBService.updateContactWithCity(firstName,city);
 					   break;
 				case 4:System.out.println("Enter state for editing");
 				       String state=s.next();
-				       contactList.get(index).setState(state);
 				       addressBookDBService.updateContactWithState(firstName,state);
 					   break;
 				case 5:System.out.println("Enter Zip for editing");
 				       int zip=s.nextInt();
-				       contactList.get(index).setZip(zip);
 				       addressBookDBService.updateContactWithZip(firstName,zip);
 					   break;
 				case 6:System.out.println("Enter Phone Number for editing");
 				       long phoneNumber=s.nextLong();
-				       contactList.get(index).setPhoneNumber(phoneNumber);
 				       addressBookDBService.updateContactWithPhoneNumber(firstName,phoneNumber);
 					   break;
 				case 7:System.out.println("Enter email for editing");
 				       String email=s.next();
-				       contactList.get(index).setEmail(email);
 				       addressBookDBService.updateContactWithEmail(firstName,email);
 					   break;   
 			}
@@ -159,7 +147,8 @@ public class AddressBook {
 		return ;
 	}
 	public List<Contact> readContacts(){
-		return addressBookDBService.readContacts();
+		this.contactList=addressBookDBService.readContacts();
+		return contactList;
 	}
 	public List<Contact> getSortedContactListByName(String addressBookName) {
 		 return addressBookDBService.SortedContactByFirstName(addressBookName);
@@ -173,6 +162,19 @@ public class AddressBook {
 	public List<Contact> getSortedContactListByZip(String addressBookName) {
 		return addressBookDBService.getSortedContactByZip(addressBookName);
 
+	}
+	public boolean checkAddressBookDataInSyncWithDB(String firstName)  {
+		List<Contact> contactList=addressBookDBService.getContactData(firstName);
+		System.out.println("returned "+contactList);
+		System.out.println("value in list"+getContactData(firstName));
+		return contactList.get(0).equals(getContactData(firstName));
+	}
+	private Contact getContactData(String firstName) {
+		
+		return this.contactList.stream()
+				.filter(contactListItem->contactListItem.getFirstName().equals(firstName))
+				.findFirst()
+				.orElse(null);
 	}
 	
 }

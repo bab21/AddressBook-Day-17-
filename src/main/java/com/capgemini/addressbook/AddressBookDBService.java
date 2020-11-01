@@ -73,6 +73,32 @@ public class AddressBookDBService {
 		}
 		return contactList;
 	}
+	public List<Contact> getContactData(String name) {
+		String sql=String.format("select * from contact where firstName='%s'",name);
+		List<Contact> contactList=new ArrayList<>();
+		
+		try(Connection connection=this.getConnection()){
+			Statement statement=connection.createStatement();
+			ResultSet resultSet=statement.executeQuery(sql);
+			while(resultSet.next()) {
+				int id=resultSet.getInt("id");
+				String firstName=resultSet.getString("firstName");
+				String lastName=resultSet.getString("lastName");
+			    String address=resultSet.getString("address");
+				String city=resultSet.getString("city");
+				String state=resultSet.getString("state");
+			    int zip=resultSet.getInt("zip");
+				long phoneNumber=resultSet.getLong("phoneNumber");;
+				String email=resultSet.getString("email");
+				ContactType contactType=ContactType.valueOf(resultSet.getString("contact_type"));
+				Contact contact=new Contact(id,firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
+				contactList.add(contact);
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return contactList;
+	}
 
 	
 
@@ -94,18 +120,35 @@ public class AddressBookDBService {
 	
 	
 	public boolean checkContactExits(Contact contact) {
-		// TODO Auto-generated method stub
+		String sql=String.format("select * from contact where name='%s'",contact.getFirstName());
+		try(Connection connection =this.getConnection()){
+			Statement statement=connection.createStatement();
+			ResultSet resultSet=statement.executeQuery(sql);
+			if(resultSet.getRow()>0)
+				return true;
+			else return false;
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
 		return false;
 	}
 	
 	
-	public void updateContactWithLastName(String firstName, String lastName) {
-		// TODO Auto-generated method stub
+	public void updateContactWithLastName(String firstName, String lastName) throws SQLException {
+		String sql=String.format("update contact set lastName='%s' where firstName='%s'",lastName,firstName);
+		try(Connection connection=this.getConnection()){
+			Statement statement=connection.createStatement();
+			statement.executeUpdate(sql);
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
 		
 	}
 
 	public void updateContactWithAddress(String firstName, String address) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
@@ -159,6 +202,7 @@ public class AddressBookDBService {
 		return null;
 	}
 
+	
 	
 
 }
