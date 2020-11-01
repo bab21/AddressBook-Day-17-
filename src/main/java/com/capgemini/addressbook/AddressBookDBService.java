@@ -3,6 +3,7 @@ package com.capgemini.addressbook;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,7 +14,6 @@ import com.capgemini.addressbook.Contact.ContactType;
 
 public class AddressBookDBService {
 	private static AddressBookDBService addressBookDBService=null;
-	
 	private AddressBookDBService() {
 		
 	}
@@ -74,8 +74,42 @@ public class AddressBookDBService {
 		return contactList;
 	}
 	public List<Contact> getContactData(String name) {
-		String sql=String.format("select * from contact where firstName='%s'",name);
-		return queryDatabase(sql);
+		try(Connection connection=this.getConnection()){
+			PreparedStatement preparedStatement=connection.prepareStatement("select * from contact where firstName=?");  
+			preparedStatement.setString(1,name);
+			ResultSet resultSet=preparedStatement.executeQuery(); 
+			return getContactData(resultSet);
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public List<Contact> getContactData(ResultSet resultSet){
+		List<Contact> contactList=new ArrayList<>();
+			
+		try {
+			while(resultSet.next()) {
+				int id=resultSet.getInt("id");
+				String firstName=resultSet.getString("firstName");
+				String lastName=resultSet.getString("lastName");
+			    String address=resultSet.getString("address");
+				String city=resultSet.getString("city");
+				String state=resultSet.getString("state");
+			    int zip=resultSet.getInt("zip");
+				long phoneNumber=resultSet.getLong("phoneNumber");;
+				String email=resultSet.getString("email");
+				ContactType contactType=ContactType.valueOf(resultSet.getString("contact_type"));
+				Contact contact=new Contact(id,firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
+				contactList.add(contact);
+		    }
+	     }
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return contactList;
+		
 	}
 
 	
@@ -112,29 +146,14 @@ public class AddressBookDBService {
 		return false;
 	}
 	public List<Contact> queryDatabase(String sql) {
-        List<Contact> contactList=new ArrayList<>();
-		
 		try(Connection connection=this.getConnection()){
 			Statement statement=connection.createStatement();
 			ResultSet resultSet=statement.executeQuery(sql);
-			while(resultSet.next()) {
-				int id=resultSet.getInt("id");
-				String firstName=resultSet.getString("firstName");
-				String lastName=resultSet.getString("lastName");
-			    String address=resultSet.getString("address");
-				String city=resultSet.getString("city");
-				String state=resultSet.getString("state");
-			    int zip=resultSet.getInt("zip");
-				long phoneNumber=resultSet.getLong("phoneNumber");;
-				String email=resultSet.getString("email");
-				ContactType contactType=ContactType.valueOf(resultSet.getString("contact_type"));
-				Contact contact=new Contact(id,firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
-				contactList.add(contact);
-			}
+			return getContactData(resultSet);
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
-		return contactList;
+		return null;
 	}
 	public void updateDatabase(String sql) {
 		try(Connection connection=this.getConnection()){

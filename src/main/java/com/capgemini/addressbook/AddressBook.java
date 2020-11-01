@@ -106,7 +106,6 @@ public class AddressBook {
 					   break;
 				case 2:System.out.println("Enter Address for editing");
 				       String address=s.next();
-				       contactList.get(index).setAddress(address);
 				       addressBookDBService.updateContactWithAddress(firstName,address);
 				   	   break;
 				case 3:System.out.println("Enter city for editing");
