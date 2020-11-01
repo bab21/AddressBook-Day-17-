@@ -1,5 +1,7 @@
 package com.capgemini.addressbook;
 
+import java.time.LocalDate;
+
 public class Contact {
 	private int id;
 	private String firstName;
@@ -11,6 +13,7 @@ public class Contact {
 	private long phoneNumber;
 	private String email;
 	private ContactType contactType;
+	private LocalDate dateAdded;
 	
 	public enum ContactType{
 		Family,Friend;
@@ -39,7 +42,10 @@ public class Contact {
 		this.email=email;
 		this.contactType=contactType;
 	}
-
+    public Contact(int id,String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,ContactType contactType,LocalDate dateAdded) {
+    	this(id, firstName, lastName, address, city, state, zip, phoneNumber, email, contactType);
+		this.dateAdded=dateAdded;
+    }
 	
 	public boolean equals(Object object) {
 		if (object == this) { 

@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.stream.IntStream;
-
+import java.time.LocalDate;
 import com.capgemini.addressbook.Contact.ContactType;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -138,6 +138,9 @@ public class AddressBook {
 	public List<Contact> readContacts(){
 		this.contactList=addressBookDBService.readContacts();
 		return contactList;
+	}
+	public List<Contact> getContactInDateRange(LocalDate startDate,LocalDate endDate){
+		return addressBookDBService.getContactInDateRange(startDate,endDate);
 	}
 	public List<Contact> getSortedContactListByName(int addressBookId) {
 		 return addressBookDBService.SortedContactByFirstName(addressBookId);

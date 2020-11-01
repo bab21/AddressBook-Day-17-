@@ -1,6 +1,7 @@
 package com.capgemini.addressbook;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,6 +11,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.time.LocalDate;
 import com.capgemini.addressbook.Contact.ContactType;
 
 public class AddressBookDBService {
@@ -238,6 +240,11 @@ public class AddressBookDBService {
 		String sql=String.format("select * from contact "
 				+ "where address_book_id='%d'"
 				+ "order by zip", addressBookId);
+		return queryDatabase(sql);
+	}
+
+	public List<Contact> getContactInDateRange(LocalDate startDate, LocalDate endDate) {
+		String sql=String.format("select * from contact where date_added BETWEEN '%s' and '%s' ;",Date.valueOf(startDate),Date.valueOf(endDate));
 		return queryDatabase(sql);
 	}
 
