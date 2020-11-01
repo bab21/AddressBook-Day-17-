@@ -1,6 +1,7 @@
 package com.capgemini.addressbook;
 
 public class Contact {
+	private int id;
 	private String firstName;
 	private String lastName;
 	private String address;
@@ -9,9 +10,12 @@ public class Contact {
 	private int zip;
 	private long phoneNumber;
 	private String email;
+	private ContactType contactType;
 	
-	
-	public Contact(String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email) {
+	public enum ContactType{
+		Family,Friend;
+	}
+	public Contact(String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,ContactType contactType) {
 		this.firstName=firstName;
 		this.lastName=lastName;
 		this.address=address;
@@ -20,7 +24,23 @@ public class Contact {
 		this.zip=zip;
 		this.phoneNumber=phoneNumber;
 		this.email=email;
+		this.contactType=contactType;
 	}
+	
+	public Contact(int id,String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,ContactType contactType){
+		this.id=id;
+		this.firstName=firstName;
+		this.lastName=lastName;
+		this.address=address;
+		this.city=city;
+		this.state=state;
+		this.zip=zip;
+		this.phoneNumber=phoneNumber;
+		this.email=email;
+		this.contactType=contactType;
+	}
+
+	
 	public boolean equals(Object object) {
 		if (object == this) { 
             return true; 
@@ -30,13 +50,20 @@ public class Contact {
             return false; 
         } 
         Contact contact = (Contact) object; 
-        if(this.firstName.equals(contact.firstName))
+        if(this.id==contact.id)
         	return true;
         else return false;		
 	}
+	
 	public String toString() {
 		return firstName+","+lastName+","+city+","+state+","+zip+","+email+","+phoneNumber;
 	}
+    public void setId(int id) {
+		this.id=id;
+	}
+    public int getId() {
+    	return this.id;
+    }
 	public void setFirstName(String first_name) {
 		this.firstName=first_name;
 	}
@@ -85,5 +112,11 @@ public class Contact {
 	}
 	public String getEmail() {
 		return this.email;
+	}
+	public void setContactType(ContactType contactType) {
+		this.contactType=contactType;
+	}
+	public ContactType getContactType() {
+		return this.contactType;
 	}
 }

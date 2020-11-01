@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.IntStream;
 
+import com.capgemini.addressbook.Contact.ContactType;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -23,114 +24,69 @@ import java.io.FileReader;
 import java.io.FileWriter;
 
 public class AddressBook {
+	private ArrayList<Contact> contactList;
+	private String addressBookName;
+	private AddressBookType addressBookType;
 	
-	public static Map<String,AddressBook> hm= new HashMap<String, AddressBook>(); 
-	public static String HOME=System.getProperty("user.dir");
+    private AddressBookDBService addressBookDBService;
+    
+	public enum AddressBookType{
+		FAMILY,FRIEND;
+	}
+	
+	public static Map<String,AddressBook> addressBookDirectory= new HashMap<String, AddressBook>(); 
+	public static Map<String,List<Contact>> cityToContact= new HashMap<String,List<Contact>>(); 
+	public static Map<String,List<Contact>> stateToContact= new HashMap<String,List<Contact>>(); 
 	
 	
-	ArrayList<Contact> contactList;
-	String addressBookName;
-	String ADDRESS_BOOK_FILE;
-	File file;
-	
-	public AddressBook() {
+	public AddressBook(){
 		contactList = new ArrayList<Contact>();
+		addressBookDBService=AddressBookDBService.getInstance();
 	}
 	public AddressBook(String addressBookName)  throws IOException{
-		contactList = new ArrayList<Contact>();
+		this();
 		this.addressBookName=addressBookName;
-		this.ADDRESS_BOOK_FILE=HOME+"/"+addressBookName+".json";
-		Path addressBookPath=Paths.get(ADDRESS_BOOK_FILE);
-		try {
-			Files.createFile(addressBookPath);
-		}
-		catch(IOException e) {
-			System.out.println("File not accessible");
-		}		
+		addressBookDBService=AddressBookDBService.getInstance();
 	}
-	
-   
-	public  Contact createContact(){
-        System.out.println("Enter details for creating and adding contact");
-		Scanner s=new Scanner(System.in);
+
+	public void addContact(String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,Contact.ContactType contactType,int addressBookId) {
 		
-		System.out.println("Enter first name");
-		String first_name=s.next();
-		System.out.println("Enter last name");
-		String lastName=s.next();
-		System.out.println("Enter address");
-		String address=s.next();
-		System.out.println("Enter city name");
-		String city=s.next();
-		System.out.println("Enter state name");
-		String state=s.next();
-		System.out.println("Enter email address");
-		String email=s.next();
-		System.out.println("Enter phone number");
-		long phone_number=s.nextLong();
-		System.out.println("Enter zip code");
-		int zip=s.nextInt();
+		Contact contact=new Contact(firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
 		
-		Contact contact=new Contact(first_name,lastName,address,city,state,zip,phone_number,email);
-		
-		
-		return contact;
-	}
-	public void updateAddressBookFile() {
-		try {
-			Gson gson = new Gson();
-			String json = gson.toJson(contactList);
-			FileWriter writer = new FileWriter(ADDRESS_BOOK_FILE);
-			writer.write(json);
-			writer.close();
-		}
-		catch(Exception e) {
-			
-		}
-	}
-	
-	public void addContact(Contact contact) {
-		List<Contact> result = contactList.stream().filter(c->c.equals(contact)).collect(Collectors.toList()); 
-		if(result.size()>0)
-		{
-			System.out.println("This contact already exits in this particular address book");
-		}
-		else{
-			this.contactList.add(contact);
-			updateAddressBookFile();	 
-		}
-		
-		
-		if(AddressBookMain.cityToContact.containsKey(contact.getCity())) {
-			AddressBookMain.cityToContact.get(contact.getCity()).add(contact);
+		if(!addressBookDBService.checkContactExits(contact)) {
+			addressBookDBService.addContact(contact,addressBookId);
 		}
 		else {
-			AddressBookMain.cityToContact.put(contact.getCity(), new ArrayList<Contact>());
-			AddressBookMain.cityToContact.get(contact.getCity()).add(contact);
+			System.out.println("Contact already exits");
 		}
-		
-		if(AddressBookMain.stateToContact.containsKey(contact.getState()))
-			AddressBookMain.stateToContact.get(contact.getState()).add(contact);
+	
+		if(cityToContact.containsKey(city)) {
+			cityToContact.get(city).add(contact);
+		}
 		else {
-			AddressBookMain.stateToContact.put(contact.getState(), new ArrayList<Contact>());
-			AddressBookMain.stateToContact.get(contact.getState()).add(contact);	
+			cityToContact.put(city, new ArrayList<Contact>());
+			cityToContact.get(city).add(contact);
 		}
-		updateAddressBookFile();
+
+		if(stateToContact.containsKey(state)){
+			contact=new Contact(firstName,lastName,address,city,state,zip,phoneNumber,email,contactType);
+			stateToContact.get(contact.getState()).add(contact);
+		}
+		else {
+			stateToContact.put(state, new ArrayList<Contact>());
+			stateToContact.get(state).add(contact);	
+		}
 		
 	}
-	public void editContact() {
-		
+	public void editContact(String firstName) {
 		Scanner s=new Scanner(System.in);
-		System.out.println("Enter first name of contact to be edited");
-		String first_name=s.next();
-		
 		int index=0;
 		int i,n;
 		
 		n=contactList.size();
 		
 		for(i=0;i<n;i++) {
-			if(contactList.get(i).getFirstName().equals(first_name))
+			if(contactList.get(i).getFirstName().equals(firstName))
 				index=i;
 			
 		}
@@ -151,99 +107,72 @@ public class AddressBook {
 			
 			switch(choice) {
 				case 1:System.out.println("Enter last name for editing");
-					   contactList.get(index).setLast_Name(s.next());
+					   String lastName=s.next();
+					   contactList.get(index).setLast_Name(lastName);
+					   addressBookDBService.updateContactWithLastName(firstName,lastName);
 					   break;
 				case 2:System.out.println("Enter Address for editing");
-				       contactList.get(index).setAddress(s.next());
+				       String address=s.next();
+				       contactList.get(index).setAddress(address);
+				       addressBookDBService.updateContactWithAddress(firstName,address);
 				   	   break;
 				case 3:System.out.println("Enter city for editing");
-				       contactList.get(index).setCity(s.next());
+				       String city=s.next();
+				       contactList.get(index).setCity(city);
+				       addressBookDBService.updateContactWithCity(firstName,city);
 					   break;
 				case 4:System.out.println("Enter state for editing");
-				       contactList.get(index).setState(s.next());
+				       String state=s.next();
+				       contactList.get(index).setState(state);
+				       addressBookDBService.updateContactWithState(firstName,state);
 					   break;
 				case 5:System.out.println("Enter Zip for editing");
-				       contactList.get(index).setZip(s.nextInt());
+				       int zip=s.nextInt();
+				       contactList.get(index).setZip(zip);
+				       addressBookDBService.updateContactWithZip(firstName,zip);
 					   break;
 				case 6:System.out.println("Enter Phone Number for editing");
-				       contactList.get(index).setPhoneNumber(s.nextLong());
+				       long phoneNumber=s.nextLong();
+				       contactList.get(index).setPhoneNumber(phoneNumber);
+				       addressBookDBService.updateContactWithPhoneNumber(firstName,phoneNumber);
 					   break;
 				case 7:System.out.println("Enter email for editing");
-				       contactList.get(index).setEmail(s.next());
-					   break;
-			   	   
+				       String email=s.next();
+				       contactList.get(index).setEmail(email);
+				       addressBookDBService.updateContactWithEmail(firstName,email);
+					   break;   
 			}
-			updateAddressBookFile();
 		}	
 	}
-	public void deleteContact() {
+	public void deleteContact(String firstName) {
 		int index=0;
 		int i,n;
-		Scanner s=new Scanner(System.in);
-		System.out.println("Enter name of contact to be deleted");
-		String first_name=s.next();
 		n=contactList.size();
 		
 		for(i=0;i<n;i++) {
-			if(contactList.get(i).getFirstName().equals(first_name))
+			if(contactList.get(i).getFirstName().equals(firstName))
 				index=i;
 			
 		}
 		contactList.remove(index);
-		updateAddressBookFile();
+		addressBookDBService.deleteContact(firstName);
 		return ;
 	}
-	public void showContacts(){
-		
-		    try {
-			Gson gson = new Gson();
-			BufferedReader br = new BufferedReader(new FileReader(ADDRESS_BOOK_FILE));
-			Contact[] contact = gson.fromJson(br, Contact[].class);
-			List<Contact> contactList = Arrays.asList(contact);
-			for (Contact c : contactList) {
-				System.out.println("FirstName : " + c.getFirstName());
-				System.out.println("LastName : " + c.getLast_Name());
-				System.out.println("Address : " + c.getAddress());
-				System.out.println("City : " + c.getCity());
-				System.out.println("State : " + c.getState());
-				System.out.println("Zip : " + c.getZip());
-				System.out.println("Phone Number : " + c.getPhoneNumber());
-				System.out.println("Email : " + c.getEmail());
-				System.out.println("**********************************");
-			}
-		    }
-		    catch(Exception e) {
-		    	e.printStackTrace();
-		    }
+	public List<Contact> readContacts(){
+		return addressBookDBService.readContacts();
 	}
-	public  static void getSortedContactListByName(String AddressBookName) {
-		 hm.get(AddressBookName).contactList
-		 .stream() 
-         .sorted((c1, c2)->c1.getFirstName().compareTo(c2.getFirstName())) 
-         .map(contact->contact.toString())
-         .forEach(System.out::println); 
-		
+	public List<Contact> getSortedContactListByName(String addressBookName) {
+		 return addressBookDBService.SortedContactByFirstName(addressBookName);
 	}
-	public static void getSortedContactListByCity(String AddressBookName){
-		hm.get(AddressBookName).contactList
-		 .stream() 
-        .sorted((c1, c2)->c1.getCity().compareTo(c2.getCity())) 
-        .map(contact->contact.toString())
-        .forEach(System.out::println); 
+	public List<Contact> getSortedContactListByCity(String addressBookName){
+		return addressBookDBService.getSortedContactByCity(addressBookName);
 	}
-	public static void getSortedContactListByState(String AddressBookName){
-		hm.get(AddressBookName).contactList
-		 .stream() 
-        .sorted((c1, c2)->c1.getState().compareTo(c2.getState())) 
-        .map(contact->contact.toString())
-        .forEach(System.out::println); 
+	public List<Contact> getSortedContactListByState(String AddressBookName){
+		return addressBookDBService.getSortedContactByState(addressBookName);
 	}
-	public static void getSortedContactListByZip(String AddressBookName) {
-		hm.get(AddressBookName).contactList
-		 .stream() 
-       .sorted((c1, c2)->((Integer)c1.getZip()).compareTo((Integer)c2.getZip())) 
-       .map(contact->contact.toString())
-       .forEach(System.out::println); 
+	public List<Contact> getSortedContactListByZip(String addressBookName) {
+		return addressBookDBService.getSortedContactByZip(addressBookName);
+
 	}
 	
 }
