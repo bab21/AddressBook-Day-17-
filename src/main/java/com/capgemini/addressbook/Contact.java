@@ -53,6 +53,7 @@ public class Contact {
 		this.dateAdded=dateAdded;
 	}
 
+	
 	public boolean equals(Object object) {
 		if (object == this) { 
             return true; 

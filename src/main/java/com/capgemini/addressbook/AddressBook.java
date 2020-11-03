@@ -172,5 +172,29 @@ public class AddressBook {
 	public List<Contact> getContactsByCity(String city) {
 		return addressBookDBService.getContactByCity(city);
 	}
+	public void addContactList(List<Contact> contacts) {
+		contacts.forEach(contact->{
+			Runnable task=()->{
+				System.out.println("Employee Being Added: "+Thread.currentThread().getName());
+				try {
+					this.addContactToDB(contact);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				System.out.println("Contact Added"+Thread.currentThread().getName());
+				
+			};
+			Thread thread=new Thread(task,contact.getFirstName());
+			thread.start();
+		});
+	}
+	private void addContactToDB(Contact contact) {
+		// TODO Auto-generated method stub
+		addressBookDBService.addContactToDB(contact);
+		contactList.add(contact);
+		
+	}
 	
 }

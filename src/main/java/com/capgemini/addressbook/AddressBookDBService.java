@@ -113,9 +113,6 @@ public class AddressBookDBService {
 		return contactList;
 		
 	}
-
-	
-
 	public void addContact(Contact contact,int addressBookId) {
 		String sql=String.format("insert into contact(firstName,lastName,address,city,state,zip,phoneNumber,email,address_book_id,contact_type,date_added)"
 				+ " values ('%s','%s','%s','%s','%s','%d','%d','%s','%d','%s','%s')",
@@ -131,9 +128,7 @@ public class AddressBookDBService {
 			e.printStackTrace();
 		}
 		
-	}
-	
-	
+	}	
 	public boolean checkContactExits(Contact contact) {
 		String sql=String.format("select * from contact where name='%s'",contact.getFirstName());
 		try(Connection connection =this.getConnection()){
@@ -252,6 +247,11 @@ public class AddressBookDBService {
 	public List<Contact> getContactByCity(String city) {
 		String sql=String.format("select * from contact where city='%s'",city);
 		return queryDatabase(sql);
+	}
+
+	public void addContactToDB(Contact contact) {
+		// TODO Auto-generated method stub
+		addContact(contact,4);
 	}
 
 }
