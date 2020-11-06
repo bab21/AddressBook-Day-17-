@@ -1,55 +1,40 @@
-package com.capgemini.addressbook;
+package com.capgemini.addressbook.services;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.stream.IntStream;
 import java.time.LocalDate;
-import com.capgemini.addressbook.Contact.ContactType;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
-public class AddressBook {
-	private List<Contact> contactList;
-	private String addressBookName;
-	private AddressBookType addressBookType;
-	
-    private AddressBookDBService addressBookDBService;
-    
-	public enum AddressBookType{
-		FAMILY,FRIEND;
-	}
+import com.capgemini.addressbook.exception.AddressBookException;
+import com.capgemini.addressbook.model.AddressBook;
+import com.capgemini.addressbook.model.Contact;
+
+public class AddressBookService {
+	private AddressBookDBService addressBookDBService;
+	public List<Contact> allContacts;
 	
 	public static Map<String,AddressBook> addressBookDirectory= new HashMap<String, AddressBook>(); 
 	public static Map<String,List<Contact>> cityToContact= new HashMap<String,List<Contact>>(); 
 	public static Map<String,List<Contact>> stateToContact= new HashMap<String,List<Contact>>(); 
 	
-	
-	public AddressBook(){
-		contactList = new ArrayList<Contact>();
+	public AddressBookService() throws IOException{
 		addressBookDBService=AddressBookDBService.getInstance();
+		AddressBook addressBook1=new AddressBook("book1","Family");
+		AddressBook addressBook2=new AddressBook("book2","Friend");
+		AddressBook addressBook3=new AddressBook("book3","Family");
+		addressBookDirectory.put("book1",addressBook1);
+		addressBookDirectory.put("book2",addressBook2);
+		addressBookDirectory.put("book3",addressBook3);
+		
 	}
-	public AddressBook(String addressBookName)  throws IOException{
+	public AddressBookService(List<Contact> contactList) throws IOException {
 		this();
-		this.addressBookName=addressBookName;
-		addressBookDBService=AddressBookDBService.getInstance();
+		allContacts=contactList;
 	}
-
 	public void addContact(String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,Contact.ContactType contactType,int addressBookId,LocalDate dateAdded) {
 		
 		Contact contact=new Contact(firstName,lastName,address,city,state,zip,phoneNumber,email,contactType,dateAdded);
@@ -80,7 +65,7 @@ public class AddressBook {
 		}
 		
 	}
-	public void editContact(String firstName) throws SQLException {
+	public void editContact(String firstName, String addressBookName) throws SQLException {
 		Scanner s=new Scanner(System.in);
 		int index=0;
 		int i,n;
@@ -132,13 +117,19 @@ public class AddressBook {
 			}
 		}	
 	}
-	public void deleteContact(String firstName) {
+	public void deleteContact(String firstName,String addressBookName) {
+		List<Contact> contactList=addressBookDirectory.get(addressBookName).contactList;
+		for(int i=0;i<contactList.size();i++) {
+			if(contactList.get(i).getFirstName().equals(firstName)) {
+				contactList.remove(i);
+			}
+		}
 		addressBookDBService.deleteContact(firstName);
 		return ;
 	}
-	public List<Contact> readContacts(){
-		this.contactList=addressBookDBService.readContacts();
-		return contactList;
+	public List<Contact> readContacts(String addressBookName) throws AddressBookException{
+		addressBookDirectory.get(addressBookName).contactList=addressBookDBService.readContacts(addressBookName);
+		return addressBookDirectory.get(addressBookName).contactList;
 	}
 	public List<Contact> getContactInDateRange(LocalDate startDate,LocalDate endDate){
 		return addressBookDBService.getContactInDateRange(startDate,endDate);
@@ -156,15 +147,14 @@ public class AddressBook {
 		return addressBookDBService.getSortedContactByZip(addressBookId);
 
 	}
-	public boolean checkAddressBookDataInSyncWithDB(String firstName)  {
-		List<Contact> contactList=addressBookDBService.getContactData(firstName);
+	public boolean checkAddressBookDataInSyncWithDB(String firstName,String addressBookName) throws AddressBookException  {
+		List<Contact> contactList=addressBookDBService.getContactData(firstName,addressBookName);
 		System.out.println("returned "+contactList);
-		System.out.println("value in list"+getContactData(firstName));
-		return contactList.get(0).equals(getContactData(firstName));
+		System.out.println("value in list"+getContactData(firstName,addressBookName));
+		return contactList.get(0).equals(getContactData(firstName,addressBookName));
 	}
-	private Contact getContactData(String firstName) {
-		
-		return this.contactList.stream()
+	private Contact getContactData(String firstName,String addressBookName) {
+		return addressBookDirectory.get(addressBookName).contactList.stream()
 				.filter(contactListItem->contactListItem.getFirstName().equals(firstName))
 				.findFirst()
 				.orElse(null);
@@ -172,29 +162,37 @@ public class AddressBook {
 	public List<Contact> getContactsByCity(String city) {
 		return addressBookDBService.getContactByCity(city);
 	}
-	public void addContactList(List<Contact> contacts) {
+	public void addContactList(List<Contact> contacts,String addressBookName) {
+		Map<Integer,Boolean> contactAdditionStatus=new HashMap<Integer,Boolean>();
 		contacts.forEach(contact->{
 			Runnable task=()->{
-				System.out.println("Employee Being Added: "+Thread.currentThread().getName());
+				System.out.println("Contact Being Added: "+Thread.currentThread().getName());
 				try {
-					this.addContactToDB(contact);
+					this.addContactToDB(contact,addressBookName);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+				contactAdditionStatus.put(contact.hashCode(), true);
 				System.out.println("Contact Added"+Thread.currentThread().getName());
 				
 			};
 			Thread thread=new Thread(task,contact.getFirstName());
 			thread.start();
 		});
+		while(contactAdditionStatus.containsValue(false)) {
+			try{Thread.sleep(10);
+			}catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
-	private void addContactToDB(Contact contact) {
-		// TODO Auto-generated method stub
+	
+	private void addContactToDB(Contact contact,String addressBookName) {
 		addressBookDBService.addContactToDB(contact);
-		contactList.add(contact);
-		
+		addressBookDirectory.get(addressBookName).contactList.add(contact);
+	}
+	public int countEntries() {
+		return allContacts.size();
 	}
 	
 }

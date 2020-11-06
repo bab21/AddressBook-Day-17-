@@ -1,4 +1,4 @@
-package com.capgemini.addressbook;
+package com.capgemini.addressbook.services;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,12 +11,16 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+
+import com.capgemini.addressbook.exception.AddressBookException;
+import com.capgemini.addressbook.model.Contact;
+import com.capgemini.addressbook.model.Contact.ContactType;
+
 import java.time.LocalDate;
-import com.capgemini.addressbook.Contact.ContactType;
 
 public class AddressBookDBService {
 	private static AddressBookDBService addressBookDBService=null;
-	private AddressBookDBService() {
+	public AddressBookDBService() {
 		
 	}
 	
@@ -26,11 +30,6 @@ public class AddressBookDBService {
 		return addressBookDBService;
 			
 	}
-	public static void main(String[] args) throws SQLException {
-		AddressBookDBService obj=AddressBookDBService.getInstance();
-		Connection connection=obj.getConnection();
-	}
-	
 	private Connection getConnection() throws SQLException{
 		listDrivers();
 		String jdbcURL="jdbc:mysql://localhost:3306/address_book_service?allowPublicKeyRetrieval=true&useSSL=false";
@@ -50,8 +49,9 @@ public class AddressBookDBService {
 			System.out.println("  "+driverClass.getClass().getName());
 		}
 	}
-	public List<Contact> readContacts() {
-		String sql="select * from contact";
+	public List<Contact> readContacts(String addressBookName) throws AddressBookException {
+		String sql=String.format("select * from contact where address_book_id="
+				+ "(select id from address_book where addressBookName='%s') ",addressBookName);
 		List<Contact> contactList=new ArrayList<>();
 		try(Connection connection=this.getConnection()){
 			Statement statement=connection.createStatement();
@@ -72,25 +72,26 @@ public class AddressBookDBService {
 			}
 		}catch(SQLException e) {
 			e.printStackTrace();
+			throw new AddressBookException("unable to read contacts from database");
 		}
 		return contactList;
 	}
-	public List<Contact> getContactData(String name) {
+	public List<Contact> getContactData(String name, String addressBookName) throws AddressBookException {
 		try(Connection connection=this.getConnection()){
 			PreparedStatement preparedStatement=connection.prepareStatement("select * from contact where firstName=?");  
 			preparedStatement.setString(1,name);
 			ResultSet resultSet=preparedStatement.executeQuery(); 
+			System.out.println("Size of resultset"+resultSet.getRow());
 			return getContactData(resultSet);
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
+			throw new AddressBookException("unable to create prepared statement");
 		}
-		return null;
 	}
 	
 	public List<Contact> getContactData(ResultSet resultSet){
 		List<Contact> contactList=new ArrayList<>();
-			
 		try {
 			while(resultSet.next()) {
 				int id=resultSet.getInt("id");
@@ -130,7 +131,7 @@ public class AddressBookDBService {
 		
 	}	
 	public boolean checkContactExits(Contact contact) {
-		String sql=String.format("select * from contact where name='%s'",contact.getFirstName());
+		String sql=String.format("select * from contact where firstName='%s'",contact.getFirstName());
 		try(Connection connection =this.getConnection()){
 			Statement statement=connection.createStatement();
 			ResultSet resultSet=statement.executeQuery(sql);
@@ -250,7 +251,6 @@ public class AddressBookDBService {
 	}
 
 	public void addContactToDB(Contact contact) {
-		// TODO Auto-generated method stub
 		addContact(contact,4);
 	}
 

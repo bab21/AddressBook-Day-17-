@@ -7,19 +7,46 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
-public class AddressBookServiceTest {
+import com.capgemini.addressbook.exception.AddressBookException;
+import com.capgemini.addressbook.model.Contact;
+import com.google.gson.Gson;
 
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+
+public class AddressBookServiceTest {
+//	@Before
+//	public void setUp() {
+//		RestAssured.baseURI="http://localhost";
+//		RestAssured.port=3000;
+//	}
+//	
+//	public  Contact[] getContactList() {
+//		Response response=RestAssured.get("/contact");
+//		System.out.println("Contact Data at jsonserver:\n"+response.asString());
+//		Contact[] arrayOfContact=new Gson().fromJson(response.asString(),Contact[].class);
+//		return arrayOfContact;
+//	}
+//	//UC22 Json Server....
 //	@Test
-//	public void givenDatabase_readContacts_ShouldMatch() {
+//	public void givenContacts_ReadContactFromJson_ShouldMatchSize() {
+//		Contact[] contactList=getContactList();
+//		AddressBook addressBook=new AddressBook(Arrays.asList(contactList));
+//		int entries=addressBook.countEntries();
+//		assertEquals(3,entries);
+//	}
+//	@Test
+//	public void givenDatabase_readContacts_ShouldMatch() throws AddressBookException {
 //		AddressBook addressBook=new AddressBook();
 //		List<Contact> contactList=addressBook.readContacts();
 //		assertEquals(3,contactList.size());
 //	}
-	
+//	
 //	@Test
-//	public void givenContactName_WhenUpdated_ShouldSyncWithDB() throws SQLException {
+//	public void givenContactName_WhenUpdated_ShouldSyncWithDB() throws SQLException, AddressBookException {
 //		AddressBook addressBook=new AddressBook();
 //		addressBook.editContact("Nancy");
 //		List<Contact> contactList=addressBook.readContacts();
@@ -27,7 +54,7 @@ public class AddressBookServiceTest {
 //		assertTrue(ans);
 //	}
 //	@Test
-//	public void givenContact_WhenDeleted_SHouldMatch() {
+//	public void givenContact_WhenDeleted_SHouldMatch() throws AddressBookException {
 //		AddressBook addressBook=new AddressBook();
 //		List<Contact> contactList=addressBook.readContacts();
 //		System.out.println("Data list size before deletion"+contactList.size());
@@ -42,7 +69,7 @@ public class AddressBookServiceTest {
 //		List<Contact> contactList=addressBook.getSortedContactListByCity(4);
 //		assertTrue(contactList.get(0).getCity().equals("Kolkata"));
 //	}
-	
+//	
 //	@Test
 //	public void givenDateRange_WhenContactDataRetrieved_ShouldMatch(){
 //		AddressBook addressBook=new AddressBook();
@@ -58,7 +85,7 @@ public class AddressBookServiceTest {
 //		assertEquals(2,contactList.size());
 //	}
 //	@Test
-//	public void givenContact_WhenAdded_ShouldShowSizeIncrease() {
+//	public void givenContact_WhenAdded_ShouldShowSizeIncrease() throws AddressBookException {
 //		AddressBook addressBook=new AddressBook();
 //		int sizeBeforeAdd=addressBook.readContacts().size();
 //		LocalDate dateAdded=LocalDate.now();
@@ -66,21 +93,21 @@ public class AddressBookServiceTest {
 //		int sizeAfterAdd=addressBook.readContacts().size();
 //		assertTrue(sizeBeforeAdd==sizeAfterAdd-1);
 //	}
-	@Test
-	public void givenMultipleContacts_WhenAddedUsShouldShowSizrIncrease() {
-		AddressBook addressBook=new AddressBook();
-		int sizeBeforeAdd=addressBook.readContacts().size();
-		System.out.println("size before"+sizeBeforeAdd);
-		
-		LocalDate dateAdded=LocalDate.now();
-		Contact[] contactList= {
-				new Contact("Minni", "Singh", "Indrapuri", "Patna", "Bihar", 800724, 7766554433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
-				new Contact("Mack", "Singh", "Indrapuri", "Patna", "Bihar", 800624, 7766599433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
-		};
-		addressBook.addContactList(Arrays.asList(contactList));
-		int sizeAfterAdd=addressBook.readContacts().size();
-		System.out.println("size after"+sizeAfterAdd);
-		
-		assertTrue(sizeBeforeAdd==sizeAfterAdd-2);
-	}
+//	@Test
+//	public void givenMultipleContacts_WhenAdded_ShouldShowSizeIncrease() throws AddressBookException {
+//		AddressBook addressBook=new AddressBook();
+//		int sizeBeforeAdd=addressBook.readContacts().size();
+//		System.out.println("size before"+sizeBeforeAdd);
+//		
+//		LocalDate dateAdded=LocalDate.now();
+//		Contact[] contactList= {
+//				new Contact("Minni", "Singh", "Indrapuri", "Patna", "Bihar", 800724, 7766554433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
+//				new Contact("Mack", "Singh", "Indrapuri", "Patna", "Bihar", 800624, 7766599433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
+//		};
+//		addressBook.addContactList(Arrays.asList(contactList));
+//		int sizeAfterAdd=addressBook.readContacts().size();
+//		System.out.println("size after"+sizeAfterAdd);
+//		
+//		assertTrue(sizeBeforeAdd==sizeAfterAdd-2);
+//	}
 }

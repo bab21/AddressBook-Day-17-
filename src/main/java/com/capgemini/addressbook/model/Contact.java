@@ -1,6 +1,7 @@
-package com.capgemini.addressbook;
+package com.capgemini.addressbook.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Contact {
 	private int id;
@@ -14,6 +15,7 @@ public class Contact {
 	private String email;
 	private ContactType contactType;
 	private LocalDate dateAdded;
+	private int addressBookId;
 	
 	public enum ContactType{
 		Family,Friend;
@@ -46,6 +48,18 @@ public class Contact {
     	this(id, firstName, lastName, address, city, state, zip, phoneNumber, email, contactType);
 		this.dateAdded=dateAdded;
     }
+    public Contact(int id,String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,ContactType contactType,LocalDate dateAdded,int addressBookId) {
+    	this(id, firstName, lastName, address, city, state, zip, phoneNumber, email, contactType);
+		this.dateAdded=dateAdded;
+		this.addressBookId=addressBookId;
+    }
+//    public Contact(int id,String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,ContactType contactType,String dateAdded,int addressBookId) {
+//    	
+//    	this(id, firstName, lastName, address, city, state, zip, phoneNumber, email, contactType);
+//		this.dateAdded=LocalDate.parse(dateAdded);
+//		this.addressBookId=addressBookId;
+//		System.out.println("called");
+//    }
 	
 	public Contact(String firstName, String lastName, String address, String city, String state, int zip,
 			long phoneNumber, String email, ContactType contactType, LocalDate dateAdded) {
@@ -53,7 +67,7 @@ public class Contact {
 		this.dateAdded=dateAdded;
 	}
 
-	
+	@Override
 	public boolean equals(Object object) {
 		if (object == this) { 
             return true; 
@@ -68,8 +82,14 @@ public class Contact {
         else return false;		
 	}
 	
+	@Override
 	public String toString() {
 		return firstName+","+lastName+","+city+","+state+","+zip+","+email+","+phoneNumber;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(firstName,lastName,city,state);
 	}
     public void setId(int id) {
 		this.id=id;
@@ -135,5 +155,11 @@ public class Contact {
 
 	public LocalDate getDateAdded() {
 		return this.dateAdded;
+	}
+	public void setAddressBookId(int addressBookId) {
+		this.addressBookId=addressBookId;
+	}
+	public int getAddressBookId() {
+		return this.addressBookId;
 	}
 }
