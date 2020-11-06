@@ -222,5 +222,11 @@ public class AddressBookService {
 		}
 		return null;
 	}
+	public void deleteContact(String firstName) {
+		for(int i=0;i<allContacts.size();i++) {
+			if(allContacts.get(i).firstName!=null && allContacts.get(i).firstName.equals(firstName))
+				allContacts.remove(i);
+		}
+	}
 	
 }

@@ -68,23 +68,44 @@ public class AddressBookServiceTester {
 //		assertEquals(11,entries);	
 //	}
 	
+//	@Test
+//	public void givenNewCityForContact_WhenUpdated_ShouldMatch200Response() throws IOException {
+//		List<Contact> contactList=new ArrayList<Contact>(Arrays.asList(this.getContactList()));
+//		AddressBookService addressBookService;
+//		System.out.println("contact name:"+contactList.get(6).firstName);
+//		addressBookService=new AddressBookService(contactList);
+//		
+//		addressBookService.updateWithCity("Chinki","Mumbai");
+//		Contact contact=addressBookService.getContact("Chinki");
+//		
+//		String contactJson=new Gson().toJson(contact);
+//		RequestSpecification request=RestAssured.given();
+//		request.header("Content-Type","application/json");
+//		request.body(contactJson);
+//		Response response=request.put("/contact/"+contact.getId());
+//		int statusCode=response.getStatusCode();
+//		assertEquals(200,statusCode);
+//		
+//	}
+	
 	@Test
-	public void givenNewCityForContact_WhenUpdated_ShouldMatch200Response() throws IOException {
+	public void givenContactToDelete_WhenDeleted_ShouldMatch200ResponseAndCount() throws IOException {
 		List<Contact> contactList=new ArrayList<Contact>(Arrays.asList(this.getContactList()));
 		AddressBookService addressBookService;
-		System.out.println("contact name:"+contactList.get(6).firstName);
 		addressBookService=new AddressBookService(contactList);
+		int sizeBeforeDeletion=contactList.size();
 		
-		addressBookService.updateWithCity("Chinki","Mumbai");
-		Contact contact=addressBookService.getContact("Chinki");
-		
-		String contactJson=new Gson().toJson(contact);
+		Contact contact=addressBookService.getContact("Ram");
 		RequestSpecification request=RestAssured.given();
 		request.header("Content-Type","application/json");
-		request.body(contactJson);
-		Response response=request.put("/contact/"+contact.getId());
+		Response response=request.delete("/contact/"+contact.getId());
 		int statusCode=response.getStatusCode();
 		assertEquals(200,statusCode);
+		
+		int sizeAfterDeletion=this.getContactList().length;
+		addressBookService.deleteContact(contact.firstName);
+		long entries=addressBookService.countEntries();
+		assertTrue(sizeBeforeDeletion==sizeAfterDeletion+1);
 		
 	}
 	private Response addContactToJsonServer(Contact contact) {
