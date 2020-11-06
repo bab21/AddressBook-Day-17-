@@ -5,10 +5,10 @@ import java.util.Objects;
 
 public class Contact {
 	private int id;
-	private String firstName;
+	public String firstName;
 	private String lastName;
 	private String address;
-	private String city;
+	public String city;
 	private String state;
 	private int zip;
 	private long phoneNumber;

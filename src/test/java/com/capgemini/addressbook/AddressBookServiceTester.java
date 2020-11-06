@@ -47,27 +47,46 @@ public class AddressBookServiceTester {
 //		assertEquals(3,entries);
 //	}
 	//UC23 Json Server...
-	@Test
-	public void givenMultipleContact_WhenAddedToJsonServer_ShouldMatchSize() throws IOException {
-		List<Contact> contactList=new ArrayList<Contact>(Arrays.asList(this.getContactList()));
-		AddressBookService addressBookService=new AddressBookService(contactList);
-		LocalDate dateAdded=LocalDate.now();
-		Contact[] contacts= {
-				new Contact("Surbhi", "Singh", "Indrapuri", "Patna", "Bihar", 800724, 7766554433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
-				new Contact("Chinki", "Singh", "Indrapuri", "Patna", "Bihar", 800624, 7766599433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded)
-		};
-		for(int i=0;i<contacts.length;i++) {
-			Response response=addContactToJsonServer(contacts[i]);
-			int statusCode=response.getStatusCode();
-			assertEquals(201,statusCode);
-			
-			contacts[i]=new Gson().fromJson(response.asString(), Contact.class);
-			addressBookService.addContact(contacts[i]);
-		}
-		long entries=addressBookService.countEntries();
-		assertEquals(11,entries);	
-	}
+//	@Test
+//	public void givenMultipleContact_WhenAddedToJsonServer_ShouldMatchSize() throws IOException {
+//		List<Contact> contactList=new ArrayList<Contact>(Arrays.asList(this.getContactList()));
+//		AddressBookService addressBookService=new AddressBookService(contactList);
+//		LocalDate dateAdded=LocalDate.now();
+//		Contact[] contacts= {
+//				new Contact("Surbhi", "Singh", "Indrapuri", "Patna", "Bihar", 800724, 7766554433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
+//				new Contact("Chinki", "Singh", "Indrapuri", "Patna", "Bihar", 800624, 7766599433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded)
+//		};
+//		for(int i=0;i<contacts.length;i++) {
+//			Response response=addContactToJsonServer(contacts[i]);
+//			int statusCode=response.getStatusCode();
+//			assertEquals(201,statusCode);
+//			
+//			contacts[i]=new Gson().fromJson(response.asString(), Contact.class);
+//			addressBookService.addContact(contacts[i]);
+//		}
+//		long entries=addressBookService.countEntries();
+//		assertEquals(11,entries);	
+//	}
 	
+	@Test
+	public void givenNewCityForContact_WhenUpdated_ShouldMatch200Response() throws IOException {
+		List<Contact> contactList=new ArrayList<Contact>(Arrays.asList(this.getContactList()));
+		AddressBookService addressBookService;
+		System.out.println("contact name:"+contactList.get(6).firstName);
+		addressBookService=new AddressBookService(contactList);
+		
+		addressBookService.updateWithCity("Chinki","Mumbai");
+		Contact contact=addressBookService.getContact("Chinki");
+		
+		String contactJson=new Gson().toJson(contact);
+		RequestSpecification request=RestAssured.given();
+		request.header("Content-Type","application/json");
+		request.body(contactJson);
+		Response response=request.put("/contact/"+contact.getId());
+		int statusCode=response.getStatusCode();
+		assertEquals(200,statusCode);
+		
+	}
 	private Response addContactToJsonServer(Contact contact) {
 		String contactJson=new Gson().toJson(contact);
 		RequestSpecification request=RestAssured.given();

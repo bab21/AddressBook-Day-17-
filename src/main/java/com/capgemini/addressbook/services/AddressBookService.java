@@ -33,7 +33,8 @@ public class AddressBookService {
 	}
 	public AddressBookService(List<Contact> contactList) throws IOException {
 		this();
-		allContacts=contactList;
+		this.allContacts=new ArrayList<>(contactList);
+		System.out.println("address"+allContacts.get(6).firstName);
 	}
 	public void addContact(String firstName,String lastName,String address,String city,String state,int zip,long phoneNumber,String email,Contact.ContactType contactType,int addressBookId,LocalDate dateAdded) {
 		
@@ -201,6 +202,25 @@ public class AddressBookService {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	public void updateWithCity(String firstName, String city) {
+		System.out.println("inside method"+allContacts.get(6).getFirstName());
+		System.out.println("inside method"+allContacts.get(7).getFirstName());
+		
+		
+		for(int i=0;i<allContacts.size();i++) {
+			Contact contact=(Contact)allContacts.get(i);
+			System.out.println("First Name"+contact.getFirstName());
+			if(contact.getFirstName()!=null && contact.getFirstName().equals(firstName))
+				contact.setCity(city);
+		}
+	}
+	public Contact getContact(String firstName) {
+		for(int i=0;i<allContacts.size();i++) {
+			if(allContacts.get(i).firstName!=null && allContacts.get(i).firstName.equals(firstName))
+				return allContacts.get(i);
+		}
+		return null;
 	}
 	
 }
