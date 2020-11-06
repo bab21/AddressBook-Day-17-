@@ -194,5 +194,13 @@ public class AddressBookService {
 	public int countEntries() {
 		return allContacts.size();
 	}
+	public void addContact(Contact contact) {
+		try {
+			this.allContacts.add(contact);	
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 }

@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import com.google.gson.Gson;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 public class AddressBookServiceTester {
 	AddressBookService addressBookService;
@@ -33,15 +35,45 @@ public class AddressBookServiceTester {
 		Response response=RestAssured.get("/contact");
 		System.out.println("Contact Data at jsonserver:\n"+response.asString());
 		Contact[] arrayOfContact=new Gson().fromJson(response.asString(),Contact[].class);
+		System.out.println(arrayOfContact[0].getId());
 		return arrayOfContact;
 	}
 	//UC22 Json Server....
+//	@Test
+//	public void givenContacts_ReadContactFromJson_ShouldMatchSize() throws IOException {
+//		Contact[] contactList=getContactList();
+//		AddressBookService  addressBookService=new AddressBookService(Arrays.asList(contactList));
+//		int entries=addressBookService.countEntries();
+//		assertEquals(3,entries);
+//	}
+	//UC23 Json Server...
 	@Test
-	public void givenContacts_ReadContactFromJson_ShouldMatchSize() throws IOException {
-		Contact[] contactList=getContactList();
-		AddressBookService  addressBookService=new AddressBookService(Arrays.asList(contactList));
-		int entries=addressBookService.countEntries();
-		assertEquals(3,entries);
+	public void givenMultipleContact_WhenAddedToJsonServer_ShouldMatchSize() throws IOException {
+		List<Contact> contactList=new ArrayList<Contact>(Arrays.asList(this.getContactList()));
+		AddressBookService addressBookService=new AddressBookService(contactList);
+		LocalDate dateAdded=LocalDate.now();
+		Contact[] contacts= {
+				new Contact("Surbhi", "Singh", "Indrapuri", "Patna", "Bihar", 800724, 7766554433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
+				new Contact("Chinki", "Singh", "Indrapuri", "Patna", "Bihar", 800624, 7766599433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded)
+		};
+		for(int i=0;i<contacts.length;i++) {
+			Response response=addContactToJsonServer(contacts[i]);
+			int statusCode=response.getStatusCode();
+			assertEquals(201,statusCode);
+			
+			contacts[i]=new Gson().fromJson(response.asString(), Contact.class);
+			addressBookService.addContact(contacts[i]);
+		}
+		long entries=addressBookService.countEntries();
+		assertEquals(11,entries);	
+	}
+	
+	private Response addContactToJsonServer(Contact contact) {
+		String contactJson=new Gson().toJson(contact);
+		RequestSpecification request=RestAssured.given();
+		request.header("Content-Type","application/json");
+		request.body(contactJson);
+		return request.post("/contact");
 	}
 //	@Test
 //	public void givenDatabase_readContacts_ShouldMatch() throws AddressBookException, IOException {
@@ -104,7 +136,7 @@ public class AddressBookServiceTester {
 //		LocalDate dateAdded=LocalDate.now();
 //		Contact[] contactList= {
 //				new Contact("Rinky", "Singh", "Indrapuri", "Patna", "Bihar", 800724, 7766554433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
-//				new Contact("R", "Singh", "Indrapuri", "Patna", "Bihar", 800624, 7766599433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
+//				new Contact("Reta", "Singh", "Indrapuri", "Patna", "Bihar", 800624, 7766599433L, "alisha@gmail", Contact.ContactType.Friend,dateAdded),
 //		};
 //		addressBookService.addContactList(Arrays.asList(contactList),"book2");
 //		int sizeAfterAdd=addressBookService.readContacts("book2").size();
