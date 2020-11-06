@@ -30,7 +30,7 @@ public class AddressBookServiceTester {
 		RestAssured.baseURI="http://localhost";
 		RestAssured.port=3000;
 	}
-//	
+	
 	public  Contact[] getContactList() {
 		Response response=RestAssured.get("/contact");
 		System.out.println("Contact Data at jsonserver:\n"+response.asString());
